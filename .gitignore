@@ -1,0 +1,30 @@
+# Dependencies
+/node_modules/
+
+# Environment Variables
+.env
+
+# Logs
+*.log
+*.tmp
+*.temp
+
+# OS or Editor folders
+.DS_Store
+Thumbs.db
+.idea/
+*.sublime-workspace
+.vscode/
+*.swp
+*~
+
+# Build output
+/dist
+/build
+/out
+
+# Cache
+.cache/
+
+# test
+**/coverage/*
