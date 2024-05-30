@@ -3,6 +3,7 @@ const UserService = require('../services/userService');
 const service = new UserService();
 const userRouter = express.Router();
 require('dotenv').config();
+const { verifyToken } = require('../middlewares/authorization');
 const {
   CreatedResponse, 
   SuccessResponse,
@@ -18,9 +19,10 @@ userRouter.post('/signin', async (req, res) => {
   res.send(response.responseBody());
 })
 
-userRouter.post('/signout', async (req, res) => {
-  const data = req.body;
-  const response = await service.signOut(data);
+userRouter.get('/signout', verifyToken, async (req, res) => {
+  const token = req.headers["authorization"]?.split(" ")[1];
+  // const data = req.body;
+  const response = await service.signOut({token: token});
   res.send(response.responseBody());
 })
 
