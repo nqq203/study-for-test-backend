@@ -82,6 +82,7 @@ module.exports = class UserService {
     })
 
     console.log(session);
+    console.log(user.userId);
 
     const token = jwt.sign({sessionId: session.sessionId, userId: user.userId}, process.env.JWT_SECRET_KEY);
 

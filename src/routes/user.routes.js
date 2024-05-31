@@ -18,7 +18,7 @@ userRouter.post('/signin', async (req, res) => {
 
   res.send(response.responseBody());
 })
-
+ 
 userRouter.get('/signout', verifyToken, async (req, res) => {
   const token = req.headers["authorization"]?.split(" ")[1];
   // const data = req.body;
