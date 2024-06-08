@@ -1,5 +1,5 @@
 const sqlite3 = require('sqlite3').verbose();
-const db = new sqlite3.Database('./src/db/StudyForTestDB.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, async (err) => {
+const db = new sqlite3.Database('./src/db/DB.db', sqlite3.OPEN_READWRITE | sqlite3.OPEN_CREATE, async (err) => {
     if (err) {
         console.error("Error when connecting to the database", err.message);
     } else {
@@ -34,6 +34,7 @@ async function initializeDB() {
             CREATE TABLE IF NOT EXISTS Tests (
                 testId INTEGER PRIMARY KEY AUTOINCREMENT,
                 testName TEXT,
+                audioUrl TEXT,
                 createdBy INTEGER,
                 dateCreated TEXT,
                 FOREIGN KEY (createdBy) REFERENCES Users(userId)
@@ -41,11 +42,13 @@ async function initializeDB() {
         `);
 
         db.run(`
-            CREATE TABLE IF NOT EXISTS UserTests (
+            CREATE TABLE IF NOT EXISTS DoingTests (
                 userId INTEGER,
                 testId INTEGER,
                 dateTaken TEXT,
                 score INTEGER,
+                writingUrl TEXT,
+                speakingUrl TEXT,
                 PRIMARY KEY (userId, testId),
                 FOREIGN KEY (userId) REFERENCES Users(userId),
                 FOREIGN KEY (testId) REFERENCES Tests(testId)
@@ -53,21 +56,11 @@ async function initializeDB() {
         `);
 
         db.run(`
-            CREATE TABLE IF NOT EXISTS Resources (
-                resourceId INTEGER PRIMARY KEY AUTOINCREMENT,
-                resourceType TEXT,
-                resourceUrl TEXT
-            );
-        `);
-
-        db.run(`
-            CREATE TABLE IF NOT EXISTS TestSections (
+            CREATE TABLE IF NOT EXISTS Sections (
                 sectionId INTEGER PRIMARY KEY AUTOINCREMENT,
                 testId INTEGER,
                 sectionType TEXT,
-                resourceId INTEGER,
-                FOREIGN KEY (testId) REFERENCES Tests(testId),
-                FOREIGN KEY (resourceId) REFERENCES Resources(resourceId)
+                FOREIGN KEY (testId) REFERENCES Tests(testId)
             );
         `);
 
@@ -75,38 +68,42 @@ async function initializeDB() {
             CREATE TABLE IF NOT EXISTS Questions (
                 questionId INTEGER PRIMARY KEY AUTOINCREMENT,
                 questionText TEXT,
+                questionDescription TEXT,
                 sectionId INTEGER,
-                FOREIGN KEY (sectionId) REFERENCES TestSections(sectionId)
+                FOREIGN KEY (sectionId) REFERENCES Sections(sectionId)
             );
         `);
 
         db.run(`
-            CREATE TABLE IF NOT EXISTS EssayAnswers (
-                essayAnswerId INTEGER PRIMARY KEY AUTOINCREMENT,
-                answerContent TEXT,
-                questionId INTEGER,
-                FOREIGN KEY (questionId) REFERENCES Questions(questionId)
-            );
-        `);
-
-        db.run(`
-            CREATE TABLE IF NOT EXISTS SpeakingAnswers (
-                speakingAnswerId INTEGER PRIMARY KEY AUTOINCREMENT,
-                urlAnswerContent TEXT,
-                questionId INTEGER,
-                FOREIGN KEY (questionId) REFERENCES Questions(questionId)
-            );
-        `);
-
-        db.run(`
-            CREATE TABLE IF NOT EXISTS QuizAnswers (
-                quizAnswerId INTEGER PRIMARY KEY AUTOINCREMENT,
+            CREATE TABLE IF NOT EXISTS Answers (
+                answerId INTEGER PRIMARY KEY AUTOINCREMENT,
                 answerName TEXT,
-                isCorrectAnswer BOOLEAN,
                 questionId INTEGER,
                 FOREIGN KEY (questionId) REFERENCES Questions(questionId)
             );
-        // `, 
+        `);
+        
+        db.run(`
+            CREATE TABLE IF NOT EXISTS Results (
+                resultId INTEGER PRIMARY KEY AUTOINCREMENT,
+                questionId INTEGER,
+                resultContent TEXT,
+                FOREIGN KEY (questionId) REFERENCES Questions(questionId)
+            );
+        `);
+
+        db.run(`
+            CREATE TABLE  IF NOT EXISTS UserAnswers (
+                userId INTEGER,
+                testId INTEGER,
+                questionId INTEGER,
+                userAnswerContent TEXT,
+                PRIMARY KEY (userId, testId, questionId),
+                FOREIGN KEY (userId) REFERENCES Users(userId),
+                FOREIGN KEY (testId) REFERENCES Tests(testId),
+                FOREIGN KEY (questionId) REFERENCES Questions(questionId)
+            );
+        `)
         // () => {
         //     // Close the database connection
         //     db.close((err) => {
@@ -116,7 +113,6 @@ async function initializeDB() {
         //         console.log('Closed the database connection.');
         //     });
         // });
-        );
     });
 }
 

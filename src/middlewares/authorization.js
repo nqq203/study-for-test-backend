@@ -14,7 +14,7 @@ const verifyToken = async (req, res, next) => {
   try {
     // console.log(req.headers);
     const token = req.headers["authorization"]?.split(" ")[1];
-    console.log(token);
+    // console.log(token);
 
     if (!token) {
       return res.send(new AuthFailureResponse("You need to log in").responseBody());

@@ -12,8 +12,8 @@ module.exports = class SessionRepository {
         if (err) {
           reject(err);
         } else {
-          console.log(this);
-          console.log(this.lastID);
+          // console.log(this);
+          // console.log(this.lastID);
           resolve({sessionId: this.lastID});
         }
       })

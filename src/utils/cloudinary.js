@@ -1,20 +1,20 @@
-const cloudinaryModule = require('cloudinary');
-const cloudinary = cloudinaryModule.v2;
+require('dotenv').config();
+const cloudinary = require('cloudinary').v2;
 // const fs = require('fs');
 cloudinary.config({
-    cloud_name: 'dkzc50ok0',
-    api_key: '236915934187757',
-    api_secret: 'VzrTTuK9gRKt7hZZQ-YF7XutsTs',
+    cloud_name: process.env.CLOUDINARY_NAME,
+    api_key: process.env.CLOUDINARY_API_KEY,
+    api_secret: process.env.CLOUDINARY_API_SECRET
 });
 const multer = require('multer');
 
 try {
     const storage = multer.diskStorage({
-        filename: (req, file, cb) => {
+        filename: function (req, file, cb) {
             const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1e9);
             const filename = file.fieldname + '-' + uniqueSuffix + file.originalname;
             cb(null, filename);
-        },
+        }
     });
 
     async function uploadFileToCloud(file) {
@@ -22,20 +22,20 @@ try {
         if (!file || !file.path || !file.mimetype) {
             throw new Error('Invalid file to upload.');
         }
-
         try {
             // Only proceed if the file type is supported
-            const supportedTypes = ['image', 'video', 'audio']; // Add or remove types based on your needs
+            const supportedTypes = ['image', 'video', 'audio', 'application']; // Add or remove types based on your needs
             const fileType = file.mimetype.split('/')[0];
 
             if (!supportedTypes.includes(fileType)) {
                 throw new Error('Unsupported file type for upload.');
             }
 
+            console.log(file.path);
             // Use Cloudinary's uploader to upload the file
             const result = await cloudinary.uploader.upload(file.path, {
-                resource_type: fileType, // Ensure the resource type is set based on the file
-                // You can add more options here based on Cloudinary's API, like folder, tags, etc.
+                folder: 'studyfortest',
+                resource_type: 'raw', 
             });
 
             // Check if the upload result is valid and contains a secure URL

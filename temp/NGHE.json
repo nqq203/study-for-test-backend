@@ -1,0 +1,484 @@
+{
+  "Listening": [
+    {
+      "question": "Các sinh viên đến từ những quốc gia nào?",
+      "answers": [
+        "A. Nhật Bản và Hàn Quốc.",
+        "B. Trung Quốc và Việt Nam.",
+        "C. Trung Quốc và Nhật Bản."
+      ]
+    },
+    {
+      "question": "Bạn An thích làm nghề gì?",
+      "answers": [
+        "A. Bác sĩ.",
+        "B. Hướng dẫn viên du lịch.",
+        "C. Giống nghề của mẹ."
+      ]
+    },
+    {
+      "question": "Ea-Ra đang sống và học tập tại đâu?",
+      "answers": [
+        "A. Việt Nam.",
+        "B. Hàn Quốc.",
+        "C. Anh."
+      ]
+    },
+    {
+      "question": "Chị Linda đã ăn bánh tôm ở đâu?",
+      "answers": [
+        "A. Hồ Hoàn Kiếm.",
+        "B. Hồ Tây.",
+        "C. Hồ Giảng Võ."
+      ]
+    },
+    {
+      "question": "Trong các anh chị em An, ai là người cao nhất?",
+      "answers": [
+        "A. Anh trai An.",
+        "B. Chị gái An.",
+        "C. An."
+      ]
+    },
+    {
+      "question": "Bạn có thể ăn phở vào thời gian nào trong ngày?",
+      "answers": [
+        "A. Buổi sáng.",
+        "B. Buổi tối.",
+        "C. Bất cứ lúc nào."
+      ]
+    },
+    {
+      "question": "Siêu thị giảm giá các mặt hàng trong mấy ngày?",
+      "answers": [
+        "A. 1 ngày.",
+        "B. 2 ngày.",
+        "C. 3 ngày."
+      ]
+    },
+    {
+      "question": "Chuyến bay từ Hà Nội đến Nha Trang sẽ khởi hành muộn so với thời \ngian đã thông báo bao lâu?",
+      "answers": [
+        "A. 10 phút.",
+        "B. 15 phút.",
+        "C. 20 phút."
+      ]
+    },
+    {
+      "question": "Học sinh sẽ thi môn tiếng Anh vào thời gian nào?",
+      "answers": [
+        "A. Sáng thứ 4.",
+        "B. Chiều thứ 4.",
+        "C. Sáng thứ 5."
+      ]
+    },
+    {
+      "question": "Câu nói trên có ý nghĩa gì?",
+      "answers": [
+        "A. Tất cả mọi người tôi đều không quen.",
+        "B. Tôi biết tất cả mọi người.",
+        "C. Tất cả mọi người đều biết tôi."
+      ]
+    },
+    {
+      "question": "Câu nói trên có nghĩa là gì?",
+      "answers": [
+        "A. Không có ai gọi điện cho Nam.",
+        "B. Có một người đã gọi điện cho Nam.",
+        "C. Một người bạn thân gọi điện cho Nam."
+      ]
+    },
+    {
+      "question": "Câu nói trên có ý nghĩa là gì?",
+      "answers": [
+        "A. Hoa này bao nhiêu tiền?",
+        "B. Nhiều hoa quá!",
+        "C. Chẳng có bông hoa nào."
+      ]
+    },
+    {
+      "question": "Câu trên có mấy thanh “sắc”?",
+      "answers": [
+        "A. 2 thanh sắc.",
+        "B. 3 thanh sắc.",
+        "C. 4 thanh sắc."
+      ]
+    },
+    {
+      "question": "Câu trên có mấy thanh điệu?",
+      "answers": [
+        "A. 3 thanh điệu.",
+        "B. 4 thanh điệu.",
+        "C. 5 thanh điệu."
+      ]
+    },
+    {
+      "question": "Câu nói trên có ý nghĩa là gì?",
+      "answers": [
+        "A. Chắc chắn họ đã kết hôn rồi.",
+        "B. Hình như họ đã kết hôn.",
+        "C. Có thể họ đã chia tay."
+      ]
+    },
+    {
+      "question": "Mấy giờ bạn Chi sẽ học xong?",
+      "answers": [
+        "A. 3 giờ.",
+        "B. 3 giờ 30 phút.",
+        "C. 4 giờ.",
+        "D. 4 giờ 30 phút."
+      ]
+    },
+    {
+      "question": "Họ mua chiếc ti vi với giá bao nhiêu tiền?",
+      "answers": [
+        "A. 13.000.000đ.",
+        "B. 13.500.000đ.",
+        "C. 15.500.000đ.",
+        "D. 2.500.000đ."
+      ]
+    },
+    {
+      "question": "(Tình huống 1)",
+      "answers": [
+        "A. Đã bảo chăm chỉ học đi thì không nghe.",
+        "B. Trượt cũng tốt mà.",
+        "C. Đừng buồn nữa, lần sau cố gắng hơn.",
+        "D. Vui quá, chúc mừng cậu."
+      ]
+    },
+    {
+      "question": "(Tình huống 2)",
+      "answers": [
+        "A. Cụ làm ơn dẫn cháu sang đường với.",
+        "B. Cụ cứ đứng đây đợi nhé.",
+        "C. Cụ cứ sang đường đi, sợ gì.",
+        "D. Để cháu dẫn cụ sang đường ạ."
+      ]
+    },
+    {
+      "question": "(Tình huống 3)",
+      "answers": [
+        "A. Đành phải đi xe buýt vậy.",
+        "B. Được đi xe buýt rồi.",
+        "C. Thế nào tôi cũng đi xe buýt.",
+        "D. Đợi mãi mới có xe buýt để đi."
+      ]
+    },
+    {
+      "question": "(Tình huống 4)",
+      "answers": [
+        "A. Xin mời quý khách vào.",
+        "B. Cấm vào siêu thị nếu không đeo khẩu trang.",
+        "C. Đừng vào, nguy hiểm lắm.",
+        "D. Xin vui lòng làm theo quy định."
+      ]
+    },
+    {
+      "question": "Họ sẽ đi Sa Pa bằng phương tiện gì?",
+      "answers": [
+        "A. Tàu hỏa.",
+        "B. Máy bay.",
+        "C. Ô tô khách.",
+        "D. Ô tô tự lái."
+      ]
+    },
+    {
+      "question": "Theo Liên, nếu đi bằng tàu hỏa thì bạn sẽ được trải nghiệm điều gì?",
+      "answers": [
+        "A. Ngủ một đêm trên tàu.",
+        "B. Ngắm cảnh đêm trên tàu.",
+        "C. Ăn uống thỏa thích trên tàu.",
+        "D. Được làm quen với nhiều du khách khác."
+      ]
+    },
+    {
+      "question": "Bài nghe nói về phương pháp chữa bệnh bằng hoạt động gì?",
+      "answers": [
+        "A. Hát.",
+        "B. Nghe nhạc.",
+        "C. Xem ti vi.",
+        "D. Đọc sách."
+      ]
+    },
+    {
+      "question": "Loại nhạc nào sẽ giúp giấc ngủ được ngon hơn?",
+      "answers": [
+        "A. Nhạc nhẹ.",
+        "B. Nhạc Rock.",
+        "C. Nhạc trữ tình.",
+        "D. Nhạc cổ điển."
+      ]
+    },
+    {
+      "question": "Bài nghe giới thiệu về khu chợ nào của Hà Nội?",
+      "answers": [
+        "A. Chợ Hôm.",
+        "B. Chợ Hàng Da.",
+        "C. Chợ Đồng Xuân.",
+        "D. Chợ Hàng Bè."
+      ]
+    },
+    {
+      "question": "Khách hàng đến chợ có thể tìm những cửa hàng bán đồ ăn uống ở đâu?",
+      "answers": [
+        "A. Từ tầng 1 đến tầng 3.",
+        "B. Chỉ ở dưới tầng 1.",
+        "C. Phía sau chợ.",
+        "D. Bên ngoài chợ."
+      ]
+    },
+    {
+      "question": "Tại sao lại gọi là “Kem Tràng Tiền”?",
+      "answers": [
+        "A. Vì chủ cửa hàng tên là Tràng Tiền.",
+        "B. Vì được sản xuất trên phố Tràng Tiền.",
+        "C. Vì phải trả nhiều tiền để ăn kem.",
+        "D. Vì có nhiều hương vị khác nhau."
+      ]
+    },
+    {
+      "question": "Hương vị kem nào KHÔNG CÓ trong bài nghe?",
+      "answers": [
+        "A. Cốm",
+        "B. Sô cô la",
+        "C. Vani",
+        "D. Dâu tây"
+      ]
+    },
+    {
+      "question": "Côn Đảo nằm ở đâu trên bản đồ Việt Nam?",
+      "answers": [
+        "A. Miền Bắc.",
+        "B. Miền Trung.",
+        "C. Miền Nam.",
+        "D. Miền Tây Nam bộ."
+      ]
+    },
+    {
+      "question": "Côn Đảo hấp dẫn du khách ở điểm gì?",
+      "answers": [
+        "A. Có nhiều di tích lịch sử.",
+        "B. Có nhiều bãi tắm đẹp.",
+        "C. Hải sản ngon và rẻ.",
+        "D. Cả 3 đáp án trên đều đúng."
+      ]
+    },
+    {
+      "question": "Họ đang nói chuyện với nhau vào khoảng thời điểm nào trong năm?",
+      "answers": [
+        "A. Đầu tháng 11 âm lịch.",
+        "B. Giữa tháng 11 âm lịch.",
+        "C. Cuối tháng 11 âm lịch.",
+        "D. Đầu tháng 12 âm lịch."
+      ]
+    },
+    {
+      "question": "Hai người bạn dự định làm gì trong mấy ngày Tết?",
+      "answers": [
+        "A. Đi thăm họ hàng.",
+        "B. Về nước.",
+        "C. Đi dạo phố mua sắm.",
+        "D. Đi du lịch khám phá."
+      ]
+    },
+    {
+      "question": "Tại sao bạn ấy không muốn đi cùng công ty du lịch?",
+      "answers": [
+        "A. Vì không muốn mất tiền cho công ty du lịch.",
+        "B. Vì muốn thoải mái đi chơi với bạn bè.",
+        "C. Vì muốn tự chuẩn bị mọi thứ cho chuyến đi.",
+        "D. Vì không muốn đi với người lạ."
+      ]
+    },
+    {
+      "question": "Người Việt đi du lịch Thái Lan sẽ có thuận lợi gì?",
+      "answers": [
+        "A. Được miễn thị thực.",
+        "B. Được giảm giá vé máy bay.",
+        "C. Được tham quan với giá ưu đãi.",
+        "D. Có thể sử dụng tiền Việt ở Thái Lan."
+      ]
+    },
+    {
+      "question": "Tại sao các bạn học việc khác lại cười nhạo cậu bé?",
+      "answers": [
+        "A. Vì cho rằng cậu bé làm việc vô ích.",
+        "B. Vì cậu bé quá cẩn thận.",
+        "C. Vì cậu bé không biết sửa xe.",
+        "D. Vì cậu bé học mãi không thuộc bài."
+      ]
+    },
+    {
+      "question": "Theo anh/chị, vì sao cậu bé nhận được kết thúc tốt đẹp?",
+      "answers": [
+        "A. Vì cậu không cười nhạo bạn mình.",
+        "B. Vì cậu là người làm việc tận tâm.",
+        "C. Vì cậu quá nghèo khổ.",
+        "D. Vì cậu quen biết với người khách."
+      ]
+    },
+    {
+      "question": "Ứng dụng Youtube Kids phù hợp với đối tượng nào?",
+      "answers": [
+        "A. Trẻ từ 0 đến 3 tuổi.",
+        "B. Trẻ từ 3 tuổi trở lên.",
+        "C. Trẻ từ 13 tuổi trở xuống.",
+        "D. Trẻ từ 13 tuổi trở lên."
+      ]
+    },
+    {
+      "question": "Ưu điểm của ứng dụng Youtube Kids là gì?",
+      "answers": [
+        "A. Nội dung và giao diện thân thiện với trẻ nhỏ.",
+        "B. Có thể kiểm soát nội dung và thời gian..",
+        "C. Hạn chế quảng cáo.",
+        "D. Cả 3 đáp án trên đều đúng."
+      ]
+    },
+    {
+      "question": "Vào những buổi tối mùa thu bạn có thể trải nghiệm điều gì khi đi trên \nđường phố Hà Nội?",
+      "answers": [
+        "A. Phố xá yên tĩnh.",
+        "B. Những cơn mưa rào mát mẻ.",
+        "C. Hương hoa sữa nồng nàn trong gió.",
+        "D. Ngắm bầu trời đầy sao."
+      ]
+    },
+    {
+      "question": "Món ăn nào của Hà Nội được nhắc đến trong bài nghe?",
+      "answers": [
+        "A. Trà sen.",
+        "B. Cốm.",
+        "C. Kem.",
+        "D. Đồ nướng."
+      ]
+    },
+    {
+      "question": "Theo cậu con trai, người nghèo thực sự là ai?",
+      "answers": [
+        "A. Là hai bố con.",
+        "B. Là những người ở trong ngôi làng.",
+        "C. Là những người không hạnh phúc.",
+        "D. Là những người tham lam."
+      ]
+    },
+    {
+      "question": "Câu chuyện muốn nói với chúng ta điều gì?",
+      "answers": [
+        "A. Cần phải chăm chỉ lao động để có nhiều của cải.",
+        "B. Đi nhiều nơi để học hỏi nhiều điều.",
+        "C. Giàu nghèo không phải là vấn đề quan trọng.",
+        "D. Mọi thứ phụ thuộc vào cách nhìn của chúng ta với cuộc sống."
+      ]
+    },
+    {
+      "question": "Từ ngày mai, khu vực nào bắt đầu có mưa lớn do chịu ảnh hưởng của \nbão?",
+      "answers": [
+        "A. Quảng Bình, Quảng Ngãi và Kon Tum.",
+        "B. Bắc miền Trung và Bắc bộ.",
+        "C. Miền Trung và Đông Bắc bộ.",
+        "D. Nam miền Trung và Tây Bắc bộ."
+      ]
+    },
+    {
+      "question": "Lực lượng cắm chốt trên đường Hồ Chí Minh đã thực hiện tốt nhiệm vụ \ngì?",
+      "answers": [
+        "A. Chống dịch và điều tiết phương tiện giao thông.",
+        "B. Dự báo tình hình thời tiết.",
+        "C. Giúp người dân tránh bão.",
+        "D. Đưa người dân đi qua tuyến đường nguy hiểm."
+      ]
+    },
+    {
+      "question": "Theo bài nghe, sau bao lâu áp dụng Chỉ thị 18, thành phố Hồ Chí Minh \nđã khôi phục được sản xuất, kinh doanh?",
+      "answers": [
+        "A. Một tuần.",
+        "B. Hai tuần.",
+        "C. Từ ngày hôm qua.",
+        "D. Từ ngày 15/10."
+      ]
+    },
+    {
+      "question": "Thông tin nào đúng với nội dung bài nghe?",
+      "answers": [
+        "A. Số ca nhập viện nhiều hơn số ca khỏi bệnh.",
+        "B. Số ca nhập viện nhiều hơn số ca mắc mới.",
+        "C. Số ca khỏi bệnh nhiều hơn số ca nhập viện.",
+        "D. Số ca khỏi bệnh nhiều hơn số ca tử vong."
+      ]
+    },
+    {
+      "question": "Theo PGS. TS Phùng Hòa Bình, nguyên nhân nào dẫn đến tình trạng \nmất ngủ?",
+      "answers": [
+        "A. Do áp lực của công việc và cuộc sống.",
+        "B. Do mắc chứng mất ngủ kinh niên.",
+        "C. Do chữa mất ngủ bằng thuốc tây y.",
+        "D. Do cuộc sống quá tẻ nhạt."
+      ]
+    },
+    {
+      "question": "Biểu hiện của những người mắc bệnh mất ngủ do thể hàn thế nào?",
+      "answers": [
+        "A. Thần kinh hưng phấn, khó vào giấc ngủ, giấc ngủ ngắn.",
+        "B. Lúc nào cũng buồn ngủ, ngủ lơ mơ, càng ngủ càng mệt.",
+        "C. Giấc ngủ không sinh lý, bị áp đặt.",
+        "D. Ngủ hay mê sảng hoặc mộng du."
+      ]
+    },
+    {
+      "question": "Kết quả thử nghiệm vắc xin cho trẻ thế nào?",
+      "answers": [
+        "A. Còn nhiều biến chứng nguy hiểm.",
+        "B. An toàn và tạo cơ chế bảo vệ hiệu quả.",
+        "C. Cơ chế bảo vệ chưa hiệu quả.",
+        "D. An toàn với những trẻ có cơ địa khỏe mạnh."
+      ]
+    },
+    {
+      "question": "Đối tượng nào đang được Pfizer BioNTech thử nghiệm vắc xin ngừa \nCovid?",
+      "answers": [
+        "A. Trẻ từ 6 tháng tuổi đến 5 tuổi.",
+        "B. Trẻ từ 5 tuổi đến 11 tuổi.",
+        "C. Trẻ sơ sinh từ 6 tháng đến 2 tuổi.",
+        "D. Trẻ em từ 2 tuổi đến 5 tuổi."
+      ]
+    },
+    {
+      "question": "Trong trận đấu giữa đội Việt Nam và Trung Quốc, đội Việt Nam bị dẫn \ntrước mấy bàn?",
+      "answers": [
+        "A. 1 bàn.",
+        "B. 2 bàn.",
+        "C. 3 bàn.",
+        "D. 4 bàn."
+      ]
+    },
+    {
+      "question": "Thái độ của huấn luyện viên Park thế nào sau trận đấu?",
+      "answers": [
+        "A. Không hài lòng với kết quả của trận đấu.",
+        "B. Tiếc nuối vì Việt Nam thiếu may mắn.",
+        "C. Thất vọng với cách thi đấu của các cầu thủ.",
+        "D. Cảm thấy có lỗi trong cách chỉ đạo."
+      ]
+    },
+    {
+      "question": "Bài nghe nói về nội dung gì?",
+      "answers": [
+        "A. Phương pháp sản xuất điện năng mới.",
+        "B. Thế giới áp dụng biện pháp tiết kiệm nhiên liệu.",
+        "C. Thiếu hụt nhiên liệu sau cuộc hồi phục kinh tế thế giới.",
+        "D. Nghiên cứu khai thác năng lượng Xanh."
+      ]
+    },
+    {
+      "question": "Người phụ nữ được phỏng vấn cho biết trong năm nay cô ấy đã chi trả \nbao nhiêu phần trăm doanh thu của cửa hàng mình cho hóa đơn tiền điện?",
+      "answers": [
+        "A. Gấp 2 lần doanh thu.",
+        "B. 1/3 doanh thu.",
+        "C. 1/10 doanh thu.",
+        "D. 40% doanh thu"
+      ]
+    }
+  ]
+}

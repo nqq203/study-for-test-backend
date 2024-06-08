@@ -6,13 +6,13 @@ module.exports = class UserRepository {
   }
   
   create(data) {
-    const sql = `INSERT INTO Users (fullname, email, password, userType) VALUES (?, ?, ?, ?)`;
+    const sql = `INSERT INTO Users (fullName, email, password, userType) VALUES (?, ?, ?, ?)`;
     return new Promise((resolve, reject) => {
       this.db.run(sql, [data.fullName, data.email, data.password, data.userType], (err) => {
         if (err) {
           reject(err);
         } else {
-          resolve({userId: this.lastId});
+          resolve({userId: this.lastID});
         }
       })
     })
@@ -22,7 +22,6 @@ module.exports = class UserRepository {
     let sql = `SELECT * FROM Users WHERE `;
     const params = [];
     const conditions = [];
-  
     if (data.userId) {
       conditions.push(`userId = ?`);
       params.push(data.userId);

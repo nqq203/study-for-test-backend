@@ -3,6 +3,7 @@ const SessionRepository = require('../repositories/sessionRepository');
 const bcrypt = require('bcrypt');
 const jwt = require("jsonwebtoken");
 const moment = require("moment");
+require('dotenv').config();
 const {
   ConflictResponse,
   BadRequest,
@@ -33,7 +34,7 @@ module.exports = class UserService {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    const newUser = await this.repository.create({fullName, email, password: hashedPassword});
+    const newUser = await this.repository.create({fullName, email, password: hashedPassword, userType: "normal"});
 
     if (!newUser) {
       return new InternalServerError("Can not create user!");
@@ -108,5 +109,75 @@ module.exports = class UserService {
       message: "Logout successfully!",
       code: 200,
     });
+  }
+  
+  async signInWithOauth({email}) {
+    const user = await this.repository.getByEntity({ email });
+    if (!user) {
+      return new NotFoundResponse("User not found!");
+    }
+
+    const currentSession = await this.sessionRepo.getByEntity({
+      userId: user.userId,
+      status: 'ACTIVE',
+      logoutAt: null,
+    });
+
+    if (currentSession) {
+      const updateSession = await this.sessionRepo.update({ 
+        sessionId: currentSession.sessionId,
+        status: 'INACTIVE', 
+        logoutAt: moment().toString()
+      });
+
+      if (!updateSession) {
+        return new InternalServerError("Login failed!");
+      }
+    }
+
+    const session = await this.sessionRepo.create({
+      status: 'ACTIVE',
+      userId: user.userId,
+      logoutAt: null
+    })
+
+    const token = jwt.sign({sessionId: session.sessionId, userId: user.userId}, process.env.JWT_SECRET_KEY);
+
+    const { password, ...userInfo} = user;
+    return new SuccessResponse({
+      success: true,
+      message: "Login successful",
+      code: 200,
+      metadata: { 
+        token: token,
+        userInfo: userInfo
+      },
+    });
+  }
+
+  async findOrCreateOauthUser(profile) {
+    // console.log(profile);
+    const email = profile.emails[0].value;
+    let user = await this.repository.getByEntity({ email: email });
+    if (user) {
+      return user;
+    } else {
+      const newUser = {
+        fullName: profile.displayName,
+        email: email,
+        password: process.env.OAUTH_RANDOM_KEY,
+        userType: "normal",
+      };
+      const data = await this.repository.create(newUser);
+      return data;
+    }
+  }
+
+  async getUserById({id}) {
+    const user = await this.repository.getByEntity({userId: id});
+    if (!user) {
+      return new NotFoundResponse("User not found");
+    }
+    return new SuccessResponse({ message: "User found", metadata: user });
   }
 }
