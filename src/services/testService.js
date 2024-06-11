@@ -799,12 +799,7 @@ module.exports = class TestService {
 
     for (let question of questions) {
       const userAnsContent = answerMap[question.questionId];
-      const tempResult = await this.resultRepository.getByEntity({ questionId: question.questionId });
-      if (tempResult.length && tempResult[0].resultContent.toLowerCase() === userAnsContent.toLowerCase()) {
-        score += 1;
-      }
       if (!userAnsContent) continue; // Bỏ qua nếu không tìm thấy câu trả lời cho câu hỏi này
-      
 
       const answer = await this.userAnswerRepository.createOrUpdate({
         userId: Number(userId),
@@ -817,7 +812,10 @@ module.exports = class TestService {
         return new InternalServerError("Create user answer failed");
       }
 
-      
+      const tempResult = await this.resultRepository.getByEntity({ questionId: question.questionId });
+      if (tempResult.length > 0 && tempResult[0].resultContent.toLowerCase() === userAnsContent.toLowerCase()) {
+        score += 1;
+      }
     }
 
     console.log("zooooooooooooooooooooooooooooooooooooooooo");
