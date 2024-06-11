@@ -34,6 +34,12 @@ userRouter.post('/signup', async (req, res) => {
   res.send(response.responseBody());
 })
 
+userRouter.get('/user-info/:userId', verifyToken, async (req, res) => {
+  const data = req.params;
+  const response = await service.getUserInfo(data);
+  res.send(response.responseBody());
+});
+
 userRouter.get('/google', 
   passport.authenticate('google', { scope: ['profile', 'email']})
 );

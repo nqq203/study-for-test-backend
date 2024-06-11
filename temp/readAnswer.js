@@ -3,11 +3,23 @@ const pdf = require('pdf-parse');
 
 let dataBuffer = fs.readFileSync('DAPAN.pdf');
 
-pdf(dataBuffer).then(function(data) {
-    console.log(data.text);
-    const results = extractAnswers(data.text);
-    saveResultsToFile(results);
-});
+async function fetchAndProcessPDF(pdfUrl) {
+    try {
+        // Fetching the PDF as a buffer from the given URL
+        const response = await axios.get(pdfUrl, {
+            responseType: 'arraybuffer'
+        });
+        const dataBuffer = Buffer.from(response.data, 'binary');
+
+        // Using pdf-parse to extract text from the PDF buffer
+        const data = await pdf(dataBuffer);
+        console.log(data.text);
+        const results = extractAnswers(data.text);
+        return results;
+    } catch (error) {
+        console.error('Error downloading or parsing PDF:', error);
+    }
+}
 
 function extractAnswers(text) {
     const sections = text.split('KỸ NĂNG:');

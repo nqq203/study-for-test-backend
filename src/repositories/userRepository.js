@@ -8,14 +8,14 @@ module.exports = class UserRepository {
   create(data) {
     const sql = `INSERT INTO Users (fullName, email, password, userType) VALUES (?, ?, ?, ?)`;
     return new Promise((resolve, reject) => {
-      this.db.run(sql, [data.fullName, data.email, data.password, data.userType], (err) => {
+      this.db.run(sql, [data.fullName, data.email, data.password, data.userType], function(err) {
         if (err) {
           reject(err);
         } else {
           resolve({userId: this.lastID});
         }
-      })
-    })
+      });
+    });
   }
 
   getByEntity(data) {

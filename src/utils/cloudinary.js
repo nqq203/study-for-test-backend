@@ -26,24 +26,23 @@ try {
             // Only proceed if the file type is supported
             const supportedTypes = ['image', 'video', 'audio', 'application']; // Add or remove types based on your needs
             const fileType = file.mimetype.split('/')[0];
-
+    
             if (!supportedTypes.includes(fileType)) {
                 throw new Error('Unsupported file type for upload.');
             }
-
-            console.log(file.path);
+    
             // Use Cloudinary's uploader to upload the file
             const result = await cloudinary.uploader.upload(file.path, {
                 folder: 'studyfortest',
                 resource_type: 'raw', 
             });
-
-            // Check if the upload result is valid and contains a secure URL
-            if (!result || !result.secure_url) {
+    
+            // Check if the upload result is valid and contains a URL
+            if (!result || !result.url) {
                 throw new Error('Failed to upload file to Cloudinary.');
             }
-
-            return result.secure_url; // Return the secure URL of the uploaded file
+    
+            return result.url; // Return the public URL of the uploaded file
         } catch (error) {
             // Log the error for server-side debugging
             console.error('Error uploading file to Cloudinary:', error);

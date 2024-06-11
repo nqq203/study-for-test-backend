@@ -3,20 +3,51 @@ const TestService = require('../services/testService');
 const service = new TestService();
 const testRouter = express.Router();
 require('dotenv').config();
-const { verifyToken } = require('../middlewares/authorization');
+const { verifyToken, checkRoles } = require('../middlewares/authorization');
 const {
   CreatedResponse, 
   SuccessResponse,
 } = require('../common/success.response');
 const { uploads, uploadFileToCloud } = require("../utils/cloudinary");
+const { fetchAndProcessPDF, processPDF } = require("../utils/utils");
 
-testRouter.post('/create-test-content-by-pdf', async (req, res) => {
-  const data = req.body;
-  const response = await service.createTestContentByPDF(data);
+// testRouter.post('/create-test-content-by-pdf', verifyToken, checkRoles, uploads.array("pdfFiles"),async (req, res) => {
+//   const data = req.body;
+//   const response = await service.createTestContentByPDF(data);
+//   res.send(response.responseBody());
+// })
+
+testRouter.post('/create-test-content-by-pdf', verifyToken, checkRoles, uploads.array("pdfFiles"),async (req, res) => {
+  const userId = req.body.userId;
+  const testId = req.body.testId;
+  const audioUrl = req.body.audioUrl;
+  const pdfFiles = req.files;
+
+  console.log(11111111111111111111111);
+  console.log(userId, testId, audioUrl)
+  console.log(pdfFiles);
+  const readUrl = await uploadFileToCloud(pdfFiles[0]);
+  const listenUrl = await uploadFileToCloud(pdfFiles[1]);
+  const speakUrl = await uploadFileToCloud(pdfFiles[2]);
+  const writeUrl = await uploadFileToCloud(pdfFiles[3]);
+
+  const tempRead = await processPDF(readUrl);
+  const tempListen = await processPDF(listenUrl);
+  const tempSpeak = await processPDF(speakUrl);
+  const tempWrite = await processPDF(writeUrl);
+
+  const testContent = {
+    Reading: tempRead.Reading,
+    Listening: tempListen.Listening,
+    Speaking: tempSpeak.Speaking,
+    Writing: tempWrite.Writing,
+  }
+
+  const response = await service.createTestContentByPDF({userId, testId, testContent, audioUrl});
   res.send(response.responseBody());
 })
 
-testRouter.post('/create-test', async (req, res) => {
+testRouter.post('/create-test', verifyToken, checkRoles, async (req, res) => {
   const data = req.body;
   const response = await service.createTest(data);
   res.send(response.responseBody());
@@ -39,15 +70,20 @@ testRouter.post('/get-list-test-not-done', async (req, res) => {
   res.send(response.responseBody());
 })
 
-testRouter.post('/create-test-content-by-pdf', async (req, res) => {
-  const data = req.body;
-  const response = await service.createTestContentByPDF(data);
-  res.send(response.responseBody());
-})
+// testRouter.post('/create-test-results', verifyToken, async (req, res) => {
+//   const data = req.body;
+//   const response = await service.createTestResults(data);
+//   res.send(response.responseBody());
+// })
 
-testRouter.post('/create-test-results', async (req, res) => {
-  const data = req.body;
-  const response = await service.createTestResults(data);
+testRouter.post('/create-test-results', verifyToken, checkRoles, uploads.single('file'), async (req, res) => {
+  const testId = req.body.testId;
+  const file = req.file;
+
+  const resultUrl = await uploadFileToCloud(file);
+  const testResults = await fetchAndProcessPDF(resultUrl);
+
+  const response = await service.createTestResults({testId, testResults});
   res.send(response.responseBody());
 })
 
@@ -82,7 +118,7 @@ testRouter.post('/submit-writing-test', uploads.single("fileZip"), async (req, r
   const userId = req.body.userId;
   const testId = req.body.testId;
   const sectionId = req.body.sectionId;
-  const userAnswer = req.body.userAnswer;
+  const userAnswer = JSON.parse(req.body.userAnswer);
   const response = await service.submitWritingTest({userId, testId, sectionId, userAnswer, fileZip});
   res.send(response.responseBody());
 })
@@ -119,8 +155,10 @@ testRouter.post('/get-writing-user-answer', async (req, res) => {
 })
 
 // chưa test - nhma chắc đúng
-testRouter.get('/get-history-board/:userId', async (req, res) => {
+testRouter.get('/get-history-board/:userId', verifyToken, async (req, res) => {
   const data = req.params;
+  console.log(req.params);
+  console.log(data, "hehehehehe");
   const response = await service.getHistoryBoard(data);
   res.send(response.responseBody());
 })
@@ -132,4 +170,31 @@ testRouter.get('/get-weekly-activity/:userId', async (req, res) => {
   res.send(response.responseBody());
 })
 
+testRouter.get('/get-resources', async (req, res) => {
+  console.log("hello");
+  const response = await service.getResourceUrl();
+  res.send(response.responseBody());
+})
+
+testRouter.get('/get-intructor-test/:userId', async (req, res) => {
+  const data = req.params;
+  const response = await service.getInstructorTest(data);
+  res.send(response.responseBody());
+})
+
+testRouter.post('/search-instructor-test/', async (req, res) => {
+  const data = req.body;
+  const response = await service.searchInstructorTest(data);
+  res.send(response.responseBody());
+})
+
+testRouter.post('/uploadfile', uploads.single('file'), async (req, res) => {
+  const file = req.file;
+  const response = await uploadFileToCloud(file);
+  console.log(response);
+  res.send({
+    success: true,
+    metadata: response
+  });
+})
 module.exports = { testRouter };

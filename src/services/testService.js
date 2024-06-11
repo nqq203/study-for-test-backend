@@ -19,7 +19,7 @@ const {
 } = require("../common/success.response");
 const moment = require("moment");
 const { uploadFileToCloud } = require("../utils/cloudinary");
-const { getStartAndEndOfWeek } = require("../utils/utils");
+const { getStartAndEndOfWeek, fillWeekData } = require("../utils/utils");
 
 module.exports = class TestService {
   constructor() {
@@ -49,16 +49,33 @@ module.exports = class TestService {
       return new BadRequest("Missing user id");
     }
 
-    const tests = await this.doingTestRepository.getByEntity({ userId: userId });
+    let sql = `SELECT DISTINCT T.testId, T.testName, T.dateCreated
+              FROM Tests T, DoingTests DT
+              WHERE DT.testId = T.testId AND DT.userId = ?;`
+
+    const tests = await new Promise((resolve, reject) => {
+      this.db.all(sql, [userId], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
+
     if (tests.length === 0) {
       return new NotFoundResponse("Test not found");
     }
+
+    const data = tests.map(test => {
+      return { ...test, status: "complete" }
+    })
 
     return new SuccessResponse({
       success: true,
       message: "Get list test done successfully!",
       code: 200,
-      data: tests[0],
+      metadata: data,
     });
   }
 
@@ -89,12 +106,16 @@ module.exports = class TestService {
       return new InternalServerError('Get list test not done failed with internal server error');
     };
 
+    const data = tests.map((test) => {
+      return { ...test, status: "incomplete" };
+    });
+
     return new SuccessResponse(
       {
         success: true,
         message: "Get list test not done successfully!",
         code: 200,
-        metadata: tests,
+        metadata: data,
       }
     );
   }
@@ -113,7 +134,7 @@ module.exports = class TestService {
       return new NotFoundResponse("User not found");
     }
 
-    const dateCreated = moment().format("DD/MM/YYYY").toString();
+    const dateCreated = moment().format("YYYY-MM-DD").toString();
     const newTest = await this.testRepository.create({
       testName: testName,
       createdBy: createdBy,
@@ -446,7 +467,7 @@ module.exports = class TestService {
     }
 
     const testSections = await this.sectionRepository.getByEntity({ testId: Number(testId) });
-    let readingSection, listeningSection;
+    let readingSection, listeningSection, writingSection;
     for (let section of testSections) {
       if (section.sectionType === "reading") {
         readingSection = section;
@@ -454,20 +475,26 @@ module.exports = class TestService {
       else if (section.sectionType === "listening") {
         listeningSection = section;
       }
+      else if (section.sectionType === "writing") {
+        writingSection = section;
+      }
     }
 
     const readingQuestions = await this.questionRepository.getByEntity({ sectionId: readingSection.sectionId });
     const listeningQuestions = await this.questionRepository.getByEntity({ sectionId: listeningSection.sectionId });
+    const writingQuestions = await this.questionRepository.getByEntity({ sectionId: writingSection.sectionId });
 
     let readingResults = [], listeningResults = [];
     for (let question of readingQuestions) {
       let result = await this.resultRepository.getByEntity({ questionId: question.questionId });
-      readingResults.push(result);
+      readingResults.push(result[0]);
     }
     for (let question of listeningQuestions) {
       let result = await this.resultRepository.getByEntity({ questionId: question.questionId });
-      listeningResults.push(result);
+      listeningResults.push(result[0]);
     }
+    let result = await this.resultRepository.getByEntity({ questionId: writingQuestions[0].questionId })
+    let writingResults = result[0].resultContent.split(', ');
 
     return new SuccessResponse({
       success: true,
@@ -476,6 +503,10 @@ module.exports = class TestService {
       metadata: {
         readingResults,
         listeningResults,
+        writingResults: {
+          questionId: writingQuestions[0].questionId,
+          resultContent: writingResults
+        }
       },
     });
   }
@@ -493,16 +524,37 @@ module.exports = class TestService {
       return new NotFoundResponse("Test not found");
     }
 
-    const userAnswers = await this.userAnswerRepository.getByEntity({ userId: userId, testId: testId });
-    if (!userAnswers) {
-      return new NotFoundResponse("User answer not found");
+    const sections = await this.sectionRepository.getByEntity({ testId: testId });
+    if (sections.length === 0) {
+      return new NotFoundResponse("Sections not found");
     }
+
+    const answersBySections = await Promise.all(sections.map(async (section) => {
+      const questions = await this.questionRepository.getByEntity({ sectionId: section.sectionId });
+      const answers = await Promise.all(questions.map(async (question) => {
+        const userAnswer = await this.userAnswerRepository.getByEntity({
+          userId: userId,
+          testId: testId,
+          questionId: question.questionId
+        });
+        return {
+          questionId: question.questionId,
+          questionText: question.questionText,
+          userAnswerContent: userAnswer.length > 0 ? userAnswer[0].userAnswerContent : "No answer"
+        };
+      }));
+      return {
+        sectionId: section.sectionId,
+        sectionType: section.sectionType,
+        questions: answers
+      };
+    }));
 
     return new SuccessResponse({
       success: true,
       message: "Get user answer successfully!",
       code: 200,
-      metadata: userAnswers
+      metadata: answersBySections
     });
   }
 
@@ -533,12 +585,19 @@ module.exports = class TestService {
       }
     }
 
+    const createdBy = await this.userRepository.getByEntity({ userId: existTest[0].createdBy });
+    const doingTest = await this.doingTestRepository.getByEntity({ userId: existTest[0].createdBy, testId: testId});
+    const reading = doingTest.find((dt) => dt.sectionId === readingSection.sectionId);
+    const listening = doingTest.find((dt) => dt.sectionId === listeningSection.sectionId);
+    const writing = doingTest.find((dt) => dt.sectionId === writingSection.sectionId)
+    const testInfo = { ...existTest[0], userCreatedName: createdBy.fullName, readingScore: reading !== undefined ? reading.score : 0, writingScore: writing !== undefined ? writing.score : 0, listeningScore: listening !== undefined ? listening.score : 0};
+
     return new SuccessResponse({
       success: true,
       message: "Get test detail successfully!",
       code: 200,
       metadata: {
-        testId: Number(testId),
+        test: testInfo,
         readingSection,
         listeningSection,
         speakingSection,
@@ -611,16 +670,19 @@ module.exports = class TestService {
     }
 
     const question = await this.questionRepository.getByEntity({ sectionId: sectionId });
-    const a = userAnswer.join(", ").toLowerCase();
-    const newUserAnswer = await this.userAnswerRepository.create({
+    const a = userAnswer.join(", ").toLowerCase().toString();
+    const newUserAnswer = await this.userAnswerRepository.createOrUpdate({
       userId: Number(userId),
       testId: Number(testId),
+      sectionId: Number(sectionId),
       questionId: question[0].questionId,
-      userAnswer: a
+      userAnswerContent: a
     })
     if (!newUserAnswer) {
       return new InternalServerError("Create user answer failed");
     }
+
+    console.log("qua dayyyyy");
 
     let score = 0;
     let tempResult = this.resultRepository.getByEntity({ questionId: question[0].questionId });
@@ -635,35 +697,18 @@ module.exports = class TestService {
 
     const writingUrl = await uploadFileToCloud(fileZip);
 
-    const doingTest = this.doingTestRepository.getByEntity({ userId: userId, testId: testId });
-    if (doingTest.length > 0) {
-      const dateTaken = moment().format('DD/MM/YYYY hh:mm:ss').toString();
-      const newDoingTest = await this.doingTestRepository.update({
-        userId: Number(userId),
-        testId: Number(testId),
-        dateTaken: dateTaken,
-        score: score,
-        writingUrl: writingUrl,
-        speakingUrl: doingTest[0].speakingUrl
-      });
-      if (!newDoingTest.updated) {
-        return new InternalServerError("Create doing test failed");
-      }
-    }
-    else {
-      const dateTaken = moment().format('DD/MM/YYYY hh:mm:ss').toString();
-      const newDoingTest = await this.doingTestRepository.create({
-        userId: Number(userId),
-        testId: Number(testId),
-        dateTaken: dateTaken,
-        score: score,
-        writingUrl: writingUrl,
-        speakingUrl: null
-      });
-      if (!newDoingTest.testId || !newDoingTest.userId) {
-        return new InternalServerError("Create doing test failed");
-      }
-    }
+    const doingTest = await this.doingTestRepository.getByEntity({ userId: userId, testId: testId, sectionId: sectionId });
+    console.log(doingTest.length);
+    const dateTaken = moment().format('YYYY-MM-DD').toString();
+    await this.doingTestRepository.createOrUpdate({
+      userId: Number(userId),
+      testId: Number(testId),
+      sectionId: Number(sectionId),
+      dateTaken,
+      score: score,
+      writingUrl: writingUrl, // or appropriate URL if applicable
+      speakingUrl: doingTest.length > 0 ? doingTest[0].speakingUrl : null // or appropriate URL if applicable
+    });
 
     return new SuccessResponse({
       success: true,
@@ -702,35 +747,18 @@ module.exports = class TestService {
 
     const speakingUrl = await uploadFileToCloud(fileZip);
 
-    const doingTest = this.doingTestRepository.getByEntity({ userId: userId, testId: testId });
-    if (doingTest.length > 0) {
-      const dateTaken = moment().format('DD/MM/YYYY hh:mm:ss').toString();
-      const newDoingTest = await this.doingTestRepository.update({
-        userId: Number(userId),
-        testId: Number(testId),
-        dateTaken: dateTaken,
-        score: score,
-        writingUrl: doingTest[0].writingUrl,
-        speakingUrl: speakingUrl
-      });
-      if (!newDoingTest.updated) {
-        return new InternalServerError("Create doing test failed");
-      }
-    }
-    else {
-      const dateTaken = moment().format('DD/MM/YYYY hh:mm:ss').toString();
-      const newDoingTest = await this.doingTestRepository.create({
-        userId: Number(userId),
-        testId: Number(testId),
-        dateTaken: dateTaken,
-        score: score,
-        writingUrl: null,
-        speakingUrl: speakingUrl,
-      });
-      if (!newDoingTest.testId || !newDoingTest.userId) {
-        return new InternalServerError("Create doing test failed");
-      }
-    }
+    const doingTest = await this.doingTestRepository.getByEntity({ userId: userId, testId: testId, sectionId: sectionId });
+    console.log(doingTest);
+    const dateTaken = moment().format('YYYY-MM-DD').toString();
+    await this.doingTestRepository.createOrUpdate({
+      userId: Number(userId),
+      testId: Number(testId),
+      sectionId: Number(sectionId),
+      dateTaken,
+      score: 0,
+      writingUrl: doingTest.length > 0 ? doingTest[0].writingUrl : null, // or appropriate URL if applicable
+      speakingUrl: speakingUrl // or appropriate URL if applicable
+    });
 
     return new SuccessResponse({
       success: true,
@@ -739,20 +767,7 @@ module.exports = class TestService {
     });
   }
 
-  async submitQuizTest({userId, testId, sectionId, userAnswer}) {
-    // user answer co dung sau: 
-    const temp = [
-      {
-        questionId: 1,
-        userAnswerContent: 'A'
-      },
-      {
-        questionId: 2,
-        userAnswerContent: 'B'
-      }
-    ]
-
-
+  async submitQuizTest({ userId, testId, sectionId, userAnswer }) {
     if (!userId) {
       return new BadRequest("Missing userId field");
     }
@@ -773,26 +788,59 @@ module.exports = class TestService {
       return new NotFoundResponse("Section not found");
     }
 
+    // Chuyển userAnswer thành map dựa trên questionId
+    const answerMap = userAnswer.reduce((map, answer) => {
+      map[answer.questionId] = answer.userAnswerContent;
+      return map;
+    }, {});
+
     const questions = await this.questionRepository.getByEntity({ sectionId: sectionId });
-    let i = 0;
     let score = 0;
+
     for (let question of questions) {
-      const answer = await this.userAnswerRepository.create({
-        userId: Number(userId), 
+      const userAnsContent = answerMap[question.questionId];
+      if (!userAnsContent) continue; // Bỏ qua nếu không tìm thấy câu trả lời cho câu hỏi này
+
+      const answer = await this.userAnswerRepository.createOrUpdate({
+        userId: Number(userId),
         testId: Number(testId),
+        sectionId: Number(sectionId),
         questionId: question.questionId,
-        userAnswerContet: userAnswer[i].userAnswerContent
-      })
+        userAnswerContent: userAnsContent
+      });
       if (!answer) {
         return new InternalServerError("Create user answer failed");
       }
+
       const tempResult = await this.resultRepository.getByEntity({ questionId: question.questionId });
-      if (tempResult[0].resultContent.toLowerCase() === userAnswer[i].userAnswerContent.toLowerCase()) {
+      if (tempResult.length > 0 && tempResult[0].resultContent.toLowerCase() === userAnsContent.toLowerCase()) {
         score += 1;
       }
-      i++;
     }
-  }
+
+    console.log("zooooooooooooooooooooooooooooooooooooooooo");
+    const doingTest = this.doingTestRepository.getByEntity({ userId: userId, testId: testId, sectionId: sectionId });
+    // Update or create doing test entry
+    const dateTaken = moment().format('YYYY-MM-DD').toString();
+    await this.doingTestRepository.createOrUpdate({
+      userId: Number(userId),
+      testId: Number(testId),
+      sectionId: Number(sectionId),
+      dateTaken,
+      score: score,
+      writingUrl: doingTest.length > 0 ? doingTest[0].writingUrl : null, // or appropriate URL if applicable
+      speakingUrl: doingTest.length > 0 ? doingTest[0].speakingUrl : null // or appropriate URL if applicable
+    });
+
+      return new SuccessResponse({
+        success: true,
+        message: "Submit quiz test successfully!",
+        code: 200,
+        metadata: {
+          score: score
+        }
+      })
+    }
 
   async getSpeakingUserAnswer({ userId, testId }) { // get speaking url file 
     if (!userId) {
@@ -801,18 +849,24 @@ module.exports = class TestService {
     if (!testId) {
       return new BadRequest("Missing testId field");
     }
-
+    
     const existTest = await this.doingTestRepository.getByEntity({ userId: userId, testId: testId });
     if (existTest.length === 0) {
       return new NotFoundResponse("Test not found");
     }
 
-    const speakingUrl = existTest[0].speakingUrl;
+    const sections = await this.sectionRepository.getByEntity({testId: testId});
+    let speakingSection = sections.find((section) => section.sectionType === 'speaking')
+    const speakingUrl = speakingSection.find((section) => section.sectionId === speakingSection[0].sectionId);
+    
+    const user = await this.userRepository.getByEntity({userId: userId});
+
     return new SuccessResponse({
       success: true,
       message: "Get speaking url successfully!",
       code: 200,
       metadata: {
+        userInfo: user,
         speakingUrl: speakingUrl
       }
     });
@@ -831,14 +885,104 @@ module.exports = class TestService {
       return new NotFoundResponse("Test not found");
     }
 
-    const writingUrl = existTest[0].writingUrl;
+    const sections = await this.sectionRepository.getByEntity({testId: testId});
+    let writingSection = sections.find((section) => section.sectionType === 'writing')
+    const writingUrl = writingSection.find((section) => section.sectionId === writingSection[0].sectionId);
+    
+    const user = await this.userRepository.getByEntity({userId: userId});
+
     return new SuccessResponse({
       success: true,
       message: "Get writing url successfully!",
       code: 200,
       metadata: {
+        userInfo: user,
         writingUrl: writingUrl
       }
+    });
+  }
+
+  async getResourceUrl() {
+    const doingTests = await this.doingTestRepository.getAll();
+    
+    // Lọc ra những bản ghi có writingUrl hoặc speakingUrl
+    const filteredDoingTests = doingTests.filter(test => test.writingUrl || test.speakingUrl);
+
+    // Dùng Promise.all để xử lý bất đồng bộ cho việc lấy thông tin người dùng
+    const userInfos = await Promise.all(
+        filteredDoingTests.map(async (test) => {
+            // Lấy thông tin người dùng dựa trên userId
+            const userInfo = await this.userRepository.getByEntity({ userId: test.userId });
+            const testInfo = await this.testRepository.getByEntity({ testId: test.testId });
+            // Trả về cả thông tin người dùng và url liên quan
+            return {
+                userInfo: userInfo,
+                resourceUrl: test.writingUrl || test.speakingUrl,
+                testName: testInfo[0].testName,
+            };
+        })
+    );
+
+    console.log(userInfos);
+    return new SuccessResponse({
+      success: true,
+      message: "Get resource url successfully!",
+      code: 200,
+      metadata: userInfos,
+    })
+  }
+
+  async getInstructorTest({ userId }) {
+    const test = await this.testRepository.getByEntity({createdBy: userId});
+    return new SuccessResponse({
+      success: true,
+      message: "Get list test successfully!",
+      code: 200,
+      metadata: test,
+    });
+  }
+
+  async searchInstructorTest({ input }) {
+    let sql;
+    let data;
+  
+    if (input.trim() === '') {
+      // If the input is empty or just spaces, fetch all tests
+      sql = `SELECT * FROM Tests ORDER BY testName;`;
+      data = await new Promise((resolve, reject) => {
+        this.db.all(sql, (err, results) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(results);
+          }
+        });
+      });
+    } else {
+      // If there is some input, use it to filter the tests
+      const searchPattern = `%${input}%`;
+      sql = `
+        SELECT * 
+        FROM Tests
+        WHERE testName LIKE ?
+        ORDER BY testName;
+      `;
+      data = await new Promise((resolve, reject) => {
+        this.db.all(sql, [searchPattern], (err, results) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(results);
+          }
+        });
+      });
+    }
+  
+    return new SuccessResponse({
+      success: true,
+      message: "Search successfully!",
+      code: 200,
+      metadata: data,
     });
   }
 
@@ -853,10 +997,8 @@ module.exports = class TestService {
     }
 
     let sql = `SELECT T.testName, DT.dateTaken, DT.score, S.sectionType
-              FROM Tests T
-              JOIN DoingTests DT ON T.testId = DT.testId
-              JOIN Sections S ON T.testId = S.testId
-              WHERE DT.userId = ?
+              FROM DoingTests DT, Tests T, Sections S
+              WHERE DT.userId = ? AND T.testId = DT.testId AND DT.sectionId = S.sectionId
               ORDER BY DT.dateTaken DESC;`
 
     const history = await new Promise((resolve, reject) => {
@@ -887,25 +1029,42 @@ module.exports = class TestService {
     if (!userId) {
       return new BadRequest("Missing userId field");
     }
-  
+
     const { start, end } = getStartAndEndOfWeek(new Date()); // Hoặc truyền ngày cụ thể
-  
+
     const sql = `
-      SELECT dateTaken, COUNT(*) as testCount
+      SELECT strftime('%Y-%m-%d', dateTaken) AS dateTaken, COUNT(*) AS testCount
       FROM DoingTests
-      WHERE userId = ? AND dateTaken BETWEEN ? AND ?
-      GROUP BY dateTaken
+      WHERE userId = ? AND date(dateTaken) BETWEEN date(?) AND date(?)
+      GROUP BY date(dateTaken)
       ORDER BY dateTaken;
     `;
-  
-    try {
-      const doingTest = await this.db.all(sql, [userId, start, end]);
-      if (doingTest.length === 0) {
-        return new NotFoundResponse("No tests found for this week");
-      }
-      return doingTest;
-    } catch (error) {
-      return new InternalServerError("Database error: " + error.message);
-    }
+
+    const startStr = start.toString();
+    const endStr = end.toString();
+
+      const testCounts = await new Promise((resolve, reject) => {
+        this.db.all(sql, [userId, startStr, endStr], (err, rows) => {
+          if (err) {
+            reject(err);
+          } else {
+            resolve(rows);
+          }
+        });
+      });
+
+      console.log("qua day");
+      console.log(testCounts);
+
+      // Đảm bảo dữ liệu cho mọi ngày trong tuần
+      const data = fillWeekData(testCounts, start, end);
+      
+      console.log(data);
+      return new SuccessResponse({
+        success: true,
+        message: "Get weekly activity successfully!",
+        code: 200,
+        metadata: data,
+      });
   }
 }

@@ -84,8 +84,8 @@ module.exports = class UserService {
 
     console.log(session);
     console.log(user.userId);
-
-    const token = jwt.sign({sessionId: session.sessionId, userId: user.userId}, process.env.JWT_SECRET_KEY);
+    const u = await this.repository.getByEntity({userId: user.userId});
+    const token = jwt.sign({sessionId: session.sessionId, userId: user.userId, userType: u.userType}, process.env.JWT_SECRET_KEY);
 
     return new SuccessResponse({
       success: true,
@@ -111,8 +111,9 @@ module.exports = class UserService {
     });
   }
   
-  async signInWithOauth({email}) {
-    const user = await this.repository.getByEntity({ email });
+  async signInWithOauth(data) {
+    console.log(data);
+    const user = await this.repository.getByEntity({ email: data.email });
     if (!user) {
       return new NotFoundResponse("User not found!");
     }
@@ -179,5 +180,19 @@ module.exports = class UserService {
       return new NotFoundResponse("User not found");
     }
     return new SuccessResponse({ message: "User found", metadata: user });
+  }
+
+  async getUserInfo({userId}) {
+    const user = await this.repository.getByEntity({userId: userId});
+    if (!user) {
+      return new NotFoundResponse("User not found");
+    }
+    const { password, ...userInfo } = user;
+    return new SuccessResponse({
+      success: true,
+      message: "User found",
+      code: 200,
+      metadata: userInfo
+    });
   }
 }

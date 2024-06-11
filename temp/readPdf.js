@@ -1,11 +1,23 @@
 const fs = require('fs');
 const pdf = require('pdf-parse');
+const axios = require('axios');
 
 // Function to extract text from PDF
-async function extractTextFromPDF(pdfPath) {
-    const dataBuffer = fs.readFileSync(pdfPath);
-    const data = await pdf(dataBuffer);
-    return data.text;
+async function extractTextFromPDF(pdfUrl) {
+    try {
+        // Axios to get the PDF file as a response of type arraybuffer
+        const response = await axios.get(pdfUrl, {
+            responseType: 'arraybuffer'
+        });
+        const dataBuffer = new Buffer(response.data, 'binary');
+        
+        // Use pdf-parse to extract text
+        const data = await pdf(dataBuffer);
+        return data.text;
+    } catch (error) {
+        console.error('Error downloading or parsing PDF:', error);
+        throw error;
+    }
 }
 
 // Tách văn bản thành các phần dựa trên tiêu đề "KỸ NĂNG:"
@@ -81,6 +93,8 @@ function extractSpeaking(text) {
 
     // Biến để lưu thứ tự câu hỏi
     let idx = 1;
+
+    let match;
 
     // Duyệt qua tất cả các kết quả tìm được
     while ((match = questionRegex.exec(text))!== null) {
@@ -175,18 +189,17 @@ function extractReading(text) {
 }
 
 // Main function to handle the workflow
-async function processPDF(pdfPath, outputPath) {
+async function processPDF(pdfUrl) {
     try {
-        const text = await extractTextFromPDF(pdfPath);
-        // console.log("Extracted Text: ", text); // In ra 500 ký tự đầu tiên để kiểm tra
+        const text = await extractTextFromPDF(pdfUrl);
         const sections = splitTextBySections(text);
         const formattedQuestions = processSections(sections);
-        fs.writeFileSync(outputPath, JSON.stringify(formattedQuestions, null, 2));
-        console.log(`Saved extracted questions to ${outputPath}`);
+        // Assuming you're using fs to write to local file system (Node.js context)
+        return formattedQuestions
     } catch (error) {
         console.error("Error processing PDF: ", error);
     }
 }
 
 // Example usage
-processPDF('./NOI.pdf', 'NOI.json');
+processPDF('http://res.cloudinary.com/dhvnmhqlb/raw/upload/v1718061246/studyfortest/sezluchzfaoo9mobso15.pdf', 'VIET.json');

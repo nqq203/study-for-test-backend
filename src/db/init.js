@@ -42,25 +42,27 @@ async function initializeDB() {
         `);
 
         db.run(`
-            CREATE TABLE IF NOT EXISTS DoingTests (
-                userId INTEGER,
-                testId INTEGER,
-                dateTaken TEXT,
-                score INTEGER,
-                writingUrl TEXT,
-                speakingUrl TEXT,
-                PRIMARY KEY (userId, testId),
-                FOREIGN KEY (userId) REFERENCES Users(userId),
-                FOREIGN KEY (testId) REFERENCES Tests(testId)
-            );
-        `);
-
-        db.run(`
             CREATE TABLE IF NOT EXISTS Sections (
                 sectionId INTEGER PRIMARY KEY AUTOINCREMENT,
                 testId INTEGER,
                 sectionType TEXT,
                 FOREIGN KEY (testId) REFERENCES Tests(testId)
+            );
+        `);
+
+        db.run(`
+            CREATE TABLE IF NOT EXISTS DoingTests (
+                userId INTEGER,
+                testId INTEGER,
+                sectionId INTEGER,
+                dateTaken TEXT,
+                score INTEGER,
+                writingUrl TEXT,
+                speakingUrl TEXT,
+                PRIMARY KEY (userId, testId, sectionId),
+                FOREIGN KEY (userId) REFERENCES Users(userId),
+                FOREIGN KEY (testId) REFERENCES Tests(testId),
+                FOREIGN KEY (sectionId) REFERENCES Sections(sectionId)
             );
         `);
 
@@ -96,11 +98,13 @@ async function initializeDB() {
             CREATE TABLE  IF NOT EXISTS UserAnswers (
                 userId INTEGER,
                 testId INTEGER,
+                sectionId INTEGER,
                 questionId INTEGER,
                 userAnswerContent TEXT,
-                PRIMARY KEY (userId, testId, questionId),
-                FOREIGN KEY (userId) REFERENCES Users(userId),
-                FOREIGN KEY (testId) REFERENCES Tests(testId),
+                PRIMARY KEY (userId, testId, sectionId, questionId),
+                FOREIGN KEY (userId) REFERENCES DoingTests(userId),
+                FOREIGN KEY (testId) REFERENCES DoingTests(testId),
+                FOREIGN KEY (sectionId) REFERENCES DoingTests(sectionId),
                 FOREIGN KEY (questionId) REFERENCES Questions(questionId)
             );
         `)
