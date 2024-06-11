@@ -558,9 +558,13 @@ module.exports = class TestService {
     });
   }
 
-  async getTestDetail({ testId }) {
+  async getTestDetail({ userId, testId }) {
     if (!testId) {
       return new BadRequest("Missing testId field");
+    }
+
+    if (!userId) {
+      return new BadRequest("Missing userId field");
     }
 
     const existTest = await this.testRepository.getByEntity({ testId: testId });
@@ -585,10 +589,10 @@ module.exports = class TestService {
       }
     }
 
-    const doingTest = await this.doingTestRepository.getByEntity({ testId: testId });
+    const doingTest = await this.doingTestRepository.getByEntity({userId: userId, testId: testId});
     const reading = doingTest.find((dt) => dt.sectionId === readingSection.sectionId);
     const listening = doingTest.find((dt) => dt.sectionId === listeningSection.sectionId);
-    const writing = doingTest.find((dt) => dt.sectionId === writingSection.sectionId)
+    const writing = doingTest.find((dt) => dt.sectionId === writingSection.sectionId);
     const testInfo = { ...existTest[0], userCreatedName: createdBy.fullName, readingScore: reading !== undefined ? reading.score : 0, writingScore: writing !== undefined ? writing.score : 0, listeningScore: listening !== undefined ? listening.score : 0};
 
     return new SuccessResponse({

@@ -100,7 +100,7 @@ testRouter.post('/get-user-answer', async (req, res) => {
   res.send(response.responseBody());
 })
 
-testRouter.get('/get-test-detail/:testId', async (req, res) => {
+testRouter.get('/get-test-detail/:userId/:testId', async (req, res) => {
   const data = req.params;
   const response = await service.getTestDetail(data);
   res.send(response.responseBody());
