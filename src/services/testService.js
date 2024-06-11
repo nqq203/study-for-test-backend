@@ -589,8 +589,9 @@ module.exports = class TestService {
     const doingTest = await this.doingTestRepository.getByEntity({ userId: userId, testId: testId});
     const reading = doingTest.find((dt) => dt.sectionId === readingSection.sectionId);
     const listening = doingTest.find((dt) => dt.sectionId === listeningSection.sectionId);
-    const writing = doingTest.find((dt) => dt.sectionId === writingSection.sectionId)
-    const testInfo = { ...existTest[0], userCreatedName: user.fullName, readingScore: reading !== undefined ? reading.score : 0, writingScore: writing !== undefined ? writing.score : 0, listeningScore: listening !== undefined ? listening.score : 0};
+    const writing = doingTest.find((dt) => dt.sectionId === writingSection.sectionId);
+    
+    const testInfo = { ...existTest[0], userCreatedName: user.fullName, readingScore: reading  ? reading.score : 0, writingScore: writing  ? writing.score : 0, listeningScore: listening ? listening.score : 0};
 
     return new SuccessResponse({
       success: true,
