@@ -468,6 +468,7 @@ module.exports = class TestService {
     }
 
     const testSections = await this.sectionRepository.getByEntity({ testId: Number(testId) });
+    console.log(testSections);
     let readingSection, listeningSection, writingSection;
     for (let section of testSections) {
       if (section.sectionType === "reading") {
@@ -481,6 +482,7 @@ module.exports = class TestService {
       }
     }
 
+    console.log(readingSection, listeningSection, writingSection);
     const readingQuestions = await this.questionRepository.getByEntity({ sectionId: readingSection.sectionId });
     const listeningQuestions = await this.questionRepository.getByEntity({ sectionId: listeningSection.sectionId });
     const writingQuestions = await this.questionRepository.getByEntity({ sectionId: writingSection.sectionId });
@@ -1001,12 +1003,21 @@ module.exports = class TestService {
   }
 
   async getInstructorTest({ userId }) {
-    const test = await this.testRepository.getByEntity({createdBy: userId});
+    let sql = "SELECT * FROM Tests WHERE deletedDate IS NULL AND createdBy = ?;";
+    const tests = await new Promise((resolve, reject) => {
+      this.db.all(sql, [userId], (err, rows) => {
+        if (err) {
+          reject(err);
+        } else {
+          resolve(rows);
+        }
+      });
+    });
     return new SuccessResponse({
       success: true,
       message: "Get list test successfully!",
       code: 200,
-      metadata: test,
+      metadata: tests,
     });
   }
 
