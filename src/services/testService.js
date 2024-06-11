@@ -494,7 +494,7 @@ module.exports = class TestService {
       listeningResults.push(result[0]);
     }
     let result = await this.resultRepository.getByEntity({ questionId: writingQuestions[0].questionId })
-    let writingResults = result[0].resultContent ? result[0].resultContent.split(', ') : [];
+    let writingResults = result.length > 0 && result[0].resultContent ? result[0].resultContent.split(', ') : [];
 
     return new SuccessResponse({
       success: true,
