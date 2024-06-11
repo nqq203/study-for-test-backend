@@ -1027,7 +1027,7 @@ module.exports = class TestService {
   
     if (input.trim() === '') {
       // If the input is empty or just spaces, fetch all tests
-      sql = `SELECT * FROM Tests ORDER BY testName;`;
+      sql = `SELECT * FROM Tests WHERE deletedDate IS NULL ORDER BY testName;`;
       data = await new Promise((resolve, reject) => {
         this.db.all(sql, (err, results) => {
           if (err) {
@@ -1043,7 +1043,7 @@ module.exports = class TestService {
       sql = `
         SELECT * 
         FROM Tests
-        WHERE testName LIKE ?
+        WHERE testName LIKE ? AND deletedDate IS NULL
         ORDER BY testName;
       `;
       data = await new Promise((resolve, reject) => {
