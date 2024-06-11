@@ -767,82 +767,7 @@ module.exports = class TestService {
     });
   }
 
-  // async submitQuizTest({ userId, testId, sectionId, userAnswer }) {
-  //   if (!userId) {
-  //     return new BadRequest("Missing userId field");
-  //   }
-  //   if (!testId) {
-  //     return new BadRequest("Missing testId field");
-  //   }
-  //   if (!sectionId) {
-  //     return new BadRequest("Missing sectionId field");
-  //   }
-
-  //   const existTest = await this.testRepository.getByEntity({ testId: testId });
-  //   if (existTest.length === 0) {
-  //     return new NotFoundResponse("Test not found");
-  //   }
-
-  //   const existSection = await this.sectionRepository.getByEntity({ sectionId: sectionId, testId: testId });
-  //   if (existSection.length === 0) {
-  //     return new NotFoundResponse("Section not found");
-  //   }
-
-  //   // Chuyển userAnswer thành map dựa trên questionId
-  //   const answerMap = userAnswer.reduce((map, answer) => {
-  //     map[answer.questionId] = answer.userAnswerContent;
-  //     return map;
-  //   }, {});
-
-  //   const questions = await this.questionRepository.getByEntity({ sectionId: sectionId });
-  //   let score = 0;
-
-  //   for (let question of questions) {
-  //     const userAnsContent = answerMap[question.questionId];
-  //     if (!userAnsContent) continue; // Bỏ qua nếu không tìm thấy câu trả lời cho câu hỏi này
-
-  //     const answer = await this.userAnswerRepository.createOrUpdate({
-  //       userId: Number(userId),
-  //       testId: Number(testId),
-  //       sectionId: Number(sectionId),
-  //       questionId: question.questionId,
-  //       userAnswerContent: userAnsContent
-  //     });
-  //     if (!answer) {
-  //       return new InternalServerError("Create user answer failed");
-  //     }
-
-  //     const tempResult = await this.resultRepository.getByEntity({ questionId: question.questionId });
-  //     if (tempResult.length > 0 && tempResult[0].resultContent.toLowerCase() === userAnsContent.toLowerCase()) {
-  //       score += 1;
-  //     }
-  //   }
-
-  //   console.log("zooooooooooooooooooooooooooooooooooooooooo");
-  //   const doingTest = this.doingTestRepository.getByEntity({ userId: userId, testId: testId, sectionId: sectionId });
-  //   // Update or create doing test entry
-  //   const dateTaken = moment().format('YYYY-MM-DD').toString();
-  //   await this.doingTestRepository.createOrUpdate({
-  //     userId: Number(userId),
-  //     testId: Number(testId),
-  //     sectionId: Number(sectionId),
-  //     dateTaken,
-  //     score: score,
-  //     writingUrl: doingTest.length > 0 ? doingTest[0].writingUrl : null, // or appropriate URL if applicable
-  //     speakingUrl: doingTest.length > 0 ? doingTest[0].speakingUrl : null // or appropriate URL if applicable
-  //   });
-
-  //     return new SuccessResponse({
-  //       success: true,
-  //       message: "Submit quiz test successfully!",
-  //       code: 200,
-  //       metadata: {
-  //         score: score
-  //       }
-  //     })
-  //   }
-
-  async submitQuizTest({ userId, testId, sectionId, userAnswers }) {
+  async submitQuizTest({ userId, testId, sectionId, userAnswer }) {
     if (!userId) {
       return new BadRequest("Missing userId field");
     }
@@ -852,61 +777,138 @@ module.exports = class TestService {
     if (!sectionId) {
       return new BadRequest("Missing sectionId field");
     }
-  
-    const testExists = await this.testRepository.getByEntity({ testId });
-    if (!testExists.length) {
+
+    const existTest = await this.testRepository.getByEntity({ testId: testId });
+    if (existTest.length === 0) {
       return new NotFoundResponse("Test not found");
     }
-  
-    const sectionExists = await this.sectionRepository.getByEntity({ sectionId, testId });
-    if (!sectionExists.length) {
+
+    const existSection = await this.sectionRepository.getByEntity({ sectionId: sectionId, testId: testId });
+    if (existSection.length === 0) {
       return new NotFoundResponse("Section not found");
     }
-  
-    const questions = await this.questionRepository.getByEntity({ sectionId });
+
+    // Chuyển userAnswer thành map dựa trên questionId
+    const answerMap = userAnswer.reduce((map, answer) => {
+      map[answer.questionId] = answer.userAnswerContent;
+      return map;
+    }, {});
+
+    const questions = await this.questionRepository.getByEntity({ sectionId: sectionId });
     let score = 0;
-  
+
     for (let question of questions) {
-      const userAnswer = userAnswers.find(answer => answer.questionId === question.questionId);
-      if (!userAnswer || !userAnswer.userAnswerContent) continue;
-  
-      // Store user answer to database (assumed async operation)
-      await this.userAnswerRepository.createOrUpdate({
-        userId: userId,
-        testId: testId,
-        sectionId: sectionId,
+      const userAnsContent = answerMap[question.questionId];
+      const tempResult = await this.resultRepository.getByEntity({ questionId: question.questionId });
+      if (tempResult.length && tempResult[0].resultContent.toLowerCase() === userAnsContent.toLowerCase()) {
+        score += 1;
+      }
+      if (!userAnsContent) continue; // Bỏ qua nếu không tìm thấy câu trả lời cho câu hỏi này
+      
+
+      const answer = await this.userAnswerRepository.createOrUpdate({
+        userId: Number(userId),
+        testId: Number(testId),
+        sectionId: Number(sectionId),
         questionId: question.questionId,
-        userAnswerContent: userAnswer.userAnswerContent
+        userAnswerContent: userAnsContent
       });
-  
-      // Fetch the correct answer for comparison
-      const correctAnswer = await this.resultRepository.getByEntity({ questionId: question.questionId });
-      if (correctAnswer.length && correctAnswer[0].resultContent.toLowerCase() === userAnswer.userAnswerContent.toLowerCase()) {
-        score += 1;  // Increment score if answers match
+      if (!answer) {
+        return new InternalServerError("Create user answer failed");
       }
+
+      
     }
-  
-    // Update or create the test attempt record
-    const dateTaken = moment().format("YYYY-MM-DD");
-    const doingTestUpdate = await this.doingTestRepository.createOrUpdate({
-      userId: userId,
-      testId: testId,
-      sectionId: sectionId,
-      dateTaken: dateTaken,  // Simplified date setting
+
+    console.log("zooooooooooooooooooooooooooooooooooooooooo");
+    const doingTest = this.doingTestRepository.getByEntity({ userId: userId, testId: testId, sectionId: sectionId });
+    // Update or create doing test entry
+    const dateTaken = moment().format('YYYY-MM-DD').toString();
+    await this.doingTestRepository.createOrUpdate({
+      userId: Number(userId),
+      testId: Number(testId),
+      sectionId: Number(sectionId),
+      dateTaken,
       score: score,
-      writingUrl: sectionExists[0].writingUrl || null,  // Assuming this is fetched correctly elsewhere
-      speakingUrl: sectionExists[0].speakingUrl || null
+      writingUrl: doingTest.length > 0 ? doingTest[0].writingUrl : null, // or appropriate URL if applicable
+      speakingUrl: doingTest.length > 0 ? doingTest[0].speakingUrl : null // or appropriate URL if applicable
     });
+
+      return new SuccessResponse({
+        success: true,
+        message: "Submit quiz test successfully!",
+        code: 200,
+        metadata: {
+          score: score
+        }
+      })
+    }
+
+  // async submitQuizTest({ userId, testId, sectionId, userAnswers }) {
+  //   if (!userId) {
+  //     return new BadRequest("Missing userId field");
+  //   }
+  //   if (!testId) {
+  //     return new BadRequest("Missing testId field");
+  //   }
+  //   if (!sectionId) {
+  //     return new BadRequest("Missing sectionId field");
+  //   }
   
-    return new SuccessResponse({
-      success: true,
-      message: "Submit quiz test successfully!",
-      code: 200,
-      metadata: {
-        score: score
-      }
-    });
-  }
+  //   const testExists = await this.testRepository.getByEntity({ testId });
+  //   if (!testExists.length) {
+  //     return new NotFoundResponse("Test not found");
+  //   }
+  
+  //   const sectionExists = await this.sectionRepository.getByEntity({ sectionId, testId });
+  //   if (!sectionExists.length) {
+  //     return new NotFoundResponse("Section not found");
+  //   }
+  
+  //   const questions = await this.questionRepository.getByEntity({ sectionId });
+  //   let score = 0;
+  
+  //   for (let question of questions) {
+  //     const userAnswer = userAnswers.find(answer => answer.questionId === question.questionId);
+  //     if (!userAnswer || !userAnswer.userAnswerContent) continue;
+  
+  //     // Store user answer to database (assumed async operation)
+  //     await this.userAnswerRepository.createOrUpdate({
+  //       userId: userId,
+  //       testId: testId,
+  //       sectionId: sectionId,
+  //       questionId: question.questionId,
+  //       userAnswerContent: userAnswer.userAnswerContent
+  //     });
+  
+  //     // Fetch the correct answer for comparison
+  //     const correctAnswer = await this.resultRepository.getByEntity({ questionId: question.questionId });
+  //     if (correctAnswer.length && correctAnswer[0].resultContent.toLowerCase() === userAnswer.userAnswerContent.toLowerCase()) {
+  //       score += 1;  // Increment score if answers match
+  //     }
+  //   }
+  
+  //   // Update or create the test attempt record
+  //   const dateTaken = moment().format("YYYY-MM-DD");
+  //   const doingTestUpdate = await this.doingTestRepository.createOrUpdate({
+  //     userId: userId,
+  //     testId: testId,
+  //     sectionId: sectionId,
+  //     dateTaken: dateTaken,  // Simplified date setting
+  //     score: score,
+  //     writingUrl: sectionExists[0].writingUrl || null,  // Assuming this is fetched correctly elsewhere
+  //     speakingUrl: sectionExists[0].speakingUrl || null
+  //   });
+  
+  //   return new SuccessResponse({
+  //     success: true,
+  //     message: "Submit quiz test successfully!",
+  //     code: 200,
+  //     metadata: {
+  //       score: score
+  //     }
+  //   });
+  // }
 
   async getSpeakingUserAnswer({ userId, testId }) { // get speaking url file 
     if (!userId) {
