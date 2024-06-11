@@ -585,8 +585,7 @@ module.exports = class TestService {
       }
     }
 
-    const createdBy = await this.userRepository.getByEntity({ userId: existTest[0].createdBy });
-    const doingTest = await this.doingTestRepository.getByEntity({ userId: existTest[0].createdBy, testId: testId});
+    const doingTest = await this.doingTestRepository.getByEntity({ testId: testId });
     const reading = doingTest.find((dt) => dt.sectionId === readingSection.sectionId);
     const listening = doingTest.find((dt) => dt.sectionId === listeningSection.sectionId);
     const writing = doingTest.find((dt) => dt.sectionId === writingSection.sectionId)
