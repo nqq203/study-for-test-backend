@@ -108,6 +108,7 @@ testRouter.get('/get-test-detail/:userId/:testId', async (req, res) => {
 
 testRouter.get('/get-section-detail/:testId/:sectionId', async (req, res) => {
   const data = req.params;
+  console.log(data);
   const response = await service.getSectionDetail(data);
   res.send(response.responseBody());
 })
