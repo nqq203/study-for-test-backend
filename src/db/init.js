@@ -37,6 +37,7 @@ async function initializeDB() {
                 audioUrl TEXT,
                 createdBy INTEGER,
                 dateCreated TEXT,
+                deletedDate TEXT,
                 FOREIGN KEY (createdBy) REFERENCES Users(userId)
             );
         `);

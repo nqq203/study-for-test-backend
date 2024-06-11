@@ -58,13 +58,13 @@ testRouter.get('/get-list-test', async (req, res) => {
   res.send(response.responseBody());
 })
 
-testRouter.post('/get-list-test-done', async (req, res) => {
+testRouter.post('/get-list-test-done', verifyToken, async (req, res) => {
   const data = req.body;
   const response = await service.getListTestDone(data);
   res.send(response.responseBody());
 })
 
-testRouter.post('/get-list-test-not-done', async (req, res) => {
+testRouter.post('/get-list-test-not-done', verifyToken, async (req, res) => {
   const data = req.body;
   const response = await service.getListTestNotDone(data);
   res.send(response.responseBody());
@@ -87,34 +87,32 @@ testRouter.post('/create-test-results', verifyToken, checkRoles, uploads.single(
   res.send(response.responseBody());
 })
 
-testRouter.get('/get-test-results/:testId', async (req, res) => {
+testRouter.get('/get-test-results/:testId', verifyToken, async (req, res) => {
   const data = req.params;
   const response = await service.getTestResults(data);
   res.send(response.responseBody());
 })
 
-// chưa test
-testRouter.post('/get-user-answer', async (req, res) => {
+testRouter.post('/get-user-answer', verifyToken, async (req, res) => {
   const data = req.body;
   const response = await service.getUserAnswer(data);
   res.send(response.responseBody());
 })
 
-testRouter.get('/get-test-detail/:userId/:testId', async (req, res) => {
+testRouter.get('/get-test-detail/:userId/:testId', verifyToken, async (req, res) => {
   const data = req.params;
   const response = await service.getTestDetail(data);
   res.send(response.responseBody());
 })
 
-testRouter.get('/get-section-detail/:testId/:sectionId', async (req, res) => {
+testRouter.get('/get-section-detail/:testId/:sectionId', verifyToken, async (req, res) => {
   const data = req.params;
   console.log(data);
   const response = await service.getSectionDetail(data);
   res.send(response.responseBody());
 })
 
-// chưa test
-testRouter.post('/submit-writing-test', uploads.single("fileZip"), async (req, res) => {
+testRouter.post('/submit-writing-test',verifyToken, uploads.single("fileZip"), async (req, res) => {
   const fileZip = req.file;
   const userId = req.body.userId;
   const testId = req.body.testId;
@@ -124,8 +122,7 @@ testRouter.post('/submit-writing-test', uploads.single("fileZip"), async (req, r
   res.send(response.responseBody());
 })
 
-// chưa test
-testRouter.post('/submit-speaking-test', uploads.single("fileZip"), async (req, res) => {
+testRouter.post('/submit-speaking-test',verifyToken, uploads.single("fileZip"), async (req, res) => {
   const fileZip = req.file;
   const userId = req.body.userId;
   const testId = req.body.testId;
@@ -134,28 +131,24 @@ testRouter.post('/submit-speaking-test', uploads.single("fileZip"), async (req, 
   res.send(response.responseBody());
 })
 
-// chưa test
-testRouter.post('/submit-quiz-test', async (req, res) => {
+testRouter.post('/submit-quiz-test', verifyToken, async (req, res) => {
   const data = req.body;
   const response = await service.submitQuizTest(data);
   res.send(response.responseBody());
 })
 
-// chưa test - nhma chắc đúng
 testRouter.post('/get-speaking-user-answer', async (req, res) => {
   const data = req.body;
   const response = await service.getSpeakingUserAnswer(data);
   res.send(response.responseBody());
 })
 
-// chưa test - nhma chắc đúng
 testRouter.post('/get-writing-user-answer', async (req, res) => {
   const data = req.body;
   const response = await service.getWritingUserAnswer(data);
   res.send(response.responseBody());
 })
 
-// chưa test - nhma chắc đúng
 testRouter.get('/get-history-board/:userId', verifyToken, async (req, res) => {
   const data = req.params;
   console.log(req.params);
@@ -164,26 +157,25 @@ testRouter.get('/get-history-board/:userId', verifyToken, async (req, res) => {
   res.send(response.responseBody());
 })
 
-// chưa test
-testRouter.get('/get-weekly-activity/:userId', async (req, res) => {
+testRouter.get('/get-weekly-activity/:userId', verifyToken, async (req, res) => {
   const data = req.params;
   const response = await service.getWeeklyActivity(data);
   res.send(response.responseBody());
 })
 
-testRouter.get('/get-resources', async (req, res) => {
+testRouter.get('/get-resources', verifyToken, async (req, res) => {
   console.log("hello");
   const response = await service.getResourceUrl();
   res.send(response.responseBody());
 })
 
-testRouter.get('/get-intructor-test/:userId', async (req, res) => {
+testRouter.get('/get-intructor-test/:userId', verifyToken, async (req, res) => {
   const data = req.params;
   const response = await service.getInstructorTest(data);
   res.send(response.responseBody());
 })
 
-testRouter.post('/search-instructor-test/', async (req, res) => {
+testRouter.post('/search-instructor-test/', verifyToken,  async (req, res) => {
   const data = req.body;
   const response = await service.searchInstructorTest(data);
   res.send(response.responseBody());
@@ -198,4 +190,11 @@ testRouter.post('/uploadfile', uploads.single('file'), async (req, res) => {
     metadata: response
   });
 })
+
+testRouter.delete('/delete-test/:testId', verifyToken, checkRoles, async (req, res) => {
+  const data = req.params;
+  const response = await service.deleteTest(data);
+  res.send(response.responseBody());
+});
+
 module.exports = { testRouter };

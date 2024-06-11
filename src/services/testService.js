@@ -51,7 +51,7 @@ module.exports = class TestService {
 
     let sql = `SELECT DISTINCT T.testId, T.testName, T.dateCreated
               FROM Tests T, DoingTests DT
-              WHERE DT.testId = T.testId AND DT.userId = ?;`
+              WHERE DT.testId = T.testId AND T.deletedDate IS NULL AND DT.userId = ?;`
 
     const tests = await new Promise((resolve, reject) => {
       this.db.all(sql, [userId], (err, rows) => {
@@ -90,7 +90,7 @@ module.exports = class TestService {
                   SELECT 1
                   FROM DoingTests DT
                   WHERE DT.testId = T.testId AND DT.userId = ?
-              );`
+              ) AND T.deletedDate IS NULL;`
 
     const tests = await new Promise((resolve, reject) => {
       this.db.all(sql, [userId], (err, rows) => {
@@ -140,6 +140,7 @@ module.exports = class TestService {
       createdBy: createdBy,
       dateCreated: dateCreated,
       audioUrl: null,
+      deletedDate: null,
     });
 
     if (!newTest) {
@@ -1133,5 +1134,30 @@ module.exports = class TestService {
         code: 200,
         metadata: data,
       });
+  }
+
+  async deleteTest({ testId }) {
+    if (!testId) {
+      return new BadRequest("Missing testId field");
+    }
+    
+    const deletedDate = moment().format('YYYY-MM-DD').toString();
+    const oldTest = await this.testRepository.getByEntity({testId});
+
+    const test = await this.testRepository.update({
+      testId: testId,
+      testName: oldTest[0].testName,
+      audioUrl: oldTest[0].audioUrl,
+      createdBy: oldTest[0].createdBy,
+      dateCreated: oldTest[0].dateCreated,      
+      deletedDate: deletedDate
+    });
+
+    return new SuccessResponse({
+      success: true,
+      message: "Delete test successfully!",
+      code: 200,
+      metadata: test,
+    });
   }
 }
