@@ -563,10 +563,6 @@ module.exports = class TestService {
       return new BadRequest("Missing testId field");
     }
 
-    if (!userId) {
-      return new BadRequest("Missing userId field");
-    }
-
     const existTest = await this.testRepository.getByEntity({ testId: testId });
     if (existTest.length === 0) {
       return new NotFoundResponse("Test not found");
@@ -589,11 +585,12 @@ module.exports = class TestService {
       }
     }
 
-    const doingTest = await this.doingTestRepository.getByEntity({userId: userId, testId: testId});
+    const user = await this.userRepository.getByEntity({ userId: existTest[0].createdBy });
+    const doingTest = await this.doingTestRepository.getByEntity({ userId: userId, testId: testId});
     const reading = doingTest.find((dt) => dt.sectionId === readingSection.sectionId);
     const listening = doingTest.find((dt) => dt.sectionId === listeningSection.sectionId);
-    const writing = doingTest.find((dt) => dt.sectionId === writingSection.sectionId);
-    const testInfo = { ...existTest[0], userCreatedName: createdBy.fullName, readingScore: reading !== undefined ? reading.score : 0, writingScore: writing !== undefined ? writing.score : 0, listeningScore: listening !== undefined ? listening.score : 0};
+    const writing = doingTest.find((dt) => dt.sectionId === writingSection.sectionId)
+    const testInfo = { ...existTest[0], userCreatedName: user.fullName, readingScore: reading !== undefined ? reading.score : 0, writingScore: writing !== undefined ? writing.score : 0, listeningScore: listening !== undefined ? listening.score : 0};
 
     return new SuccessResponse({
       success: true,
