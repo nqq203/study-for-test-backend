@@ -1,16 +1,27 @@
-# SFT BACKEND APP 
+# Study-for-test backend development
 
-## DESCRIPTION
-Đã config xong một số thư viện cần thiết\
-Đã xong các API liên quan đến Sign In, Sign Up, Log out\
-Viết thêm các API - Repo - Service - Route cho việc đọc file PDF\
+## Description
+An app development to help foreign people training to practice their test well.
 
-### Install dependencies
+## Notes
+Config your env to start app 
+
+## Settings and configuration
+### 1. Clone Project
+```bash
+git clone https://github.com/nqq203/study-for-test-backend.git
+cd study-for-test
+```
+
+### 2. Install dependencies
 ```bash
 npm install 
 ```
 
-### Run project
+### 3. Run project
 ```bash
 npm run dev 
 ```
+
+## Deployment
+https://study-for-test.onrender-backend-1.com
