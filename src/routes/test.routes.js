@@ -30,11 +30,13 @@ testRouter.post('/create-test-content-by-pdf', verifyToken, checkRoles, uploads.
   const listenUrl = await uploadFileToCloud(pdfFiles[1]);
   const speakUrl = await uploadFileToCloud(pdfFiles[2]);
   const writeUrl = await uploadFileToCloud(pdfFiles[3]);
+  const resultUrl = await uploadFileToCloud(pdfFiles[4]);
 
   const tempRead = await processPDF(readUrl);
   const tempListen = await processPDF(listenUrl);
   const tempSpeak = await processPDF(speakUrl);
   const tempWrite = await processPDF(writeUrl);
+  const testResults = await fetchAndProcessPDF(resultUrl);
 
   const testContent = {
     Reading: tempRead.Reading,
@@ -44,6 +46,9 @@ testRouter.post('/create-test-content-by-pdf', verifyToken, checkRoles, uploads.
   }
 
   const response = await service.createTestContentByPDF({userId, testId, testContent, audioUrl});
+  const tempRes = await service.createTestResults({testId, testResults});
+
+  console.log(tempRes);
   res.send(response.responseBody());
 })
 
