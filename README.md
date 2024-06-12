@@ -10,7 +10,7 @@ Config your env to start app
 ### 1. Clone Project
 ```bash
 git clone https://github.com/nqq203/study-for-test-backend.git
-cd study-for-test
+cd study-for-test-backend
 ```
 
 ### 2. Install dependencies
