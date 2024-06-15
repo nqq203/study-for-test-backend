@@ -58,8 +58,24 @@ testRouter.post('/create-test', verifyToken, checkRoles, async (req, res) => {
   res.send(response.responseBody());
 })
 
-testRouter.get('/get-list-test', async (req, res) => {
-  const response = await service.getListTest();
+testRouter.get('/get-list-test/:userId', async (req, res) => {
+  // const response = await service.getListTest();
+  const data = req.params;
+  const done = await service.getListTestDone(data);
+  const notDone = await service.getListTestNotDone(data);
+  console.log(done);
+  console.log(notDone);
+  let listTestDone = done.payload?.metadata ? [...done.payload.metadata] : [];
+  let lisTestNotDone = notDone.payload?.metadata ? [...notDone.payload.metadata] : [];
+
+  const listTest = listTestDone.concat(lisTestNotDone);
+  console.log(listTest);
+  const response = new SuccessResponse({
+    success: true,
+    message: "Get list test successfully!",
+    code: 200,
+    metadata: listTest,
+  });
   res.send(response.responseBody());
 })
 

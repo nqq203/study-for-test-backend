@@ -52,6 +52,7 @@ userRouter.get('/google/redirect',
     const responseData = response.responseBody();
     const userInfo = JSON.stringify(responseData.metadata.userInfo);
     const accessToken = JSON.stringify(responseData.metadata.token);
+    console.log(process.env.URL_FE);
     res.redirect(`${process.env.URL_FE}/oauth2/?userInfo=${userInfo}&accessToken=${accessToken}`);
   }
 );

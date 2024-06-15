@@ -52,7 +52,10 @@ try {
     }
 
 
-    const uploads = multer({ storage });
+    const uploads = multer({ 
+        storage,
+        limits: { fileSize: 10 * 1024 * 1024 }
+     });
     module.exports = { cloudinary, uploads, uploadFileToCloud };
 } catch (error) {
     console.log(error)
